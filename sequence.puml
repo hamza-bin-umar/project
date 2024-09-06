@@ -1,0 +1,55 @@
+@startuml
+
+actor User
+participant "FrontEnd" as FrontEnd
+participant "FlaskApp" as FlaskApp
+participant "Route" as route
+' participant "ControllerHandler" as controller_handler
+participant "Controller" as controller
+participant "User" as user
+participant "DBManager" as db_manager
+participant "SentencesCollection" as sentences_collection
+participant "InsurancesCollection" as insurances_collection
+participant "ActionsCollection" as actions_collection
+
+FrontEnd --> User: Login Page
+User -> FrontEnd: login()
+FrontEnd -> FlaskApp: Login Details
+
+FlaskApp -> route: Send Request
+route -> controller: process_request(request)
+controller -> user: get_user_by_id()
+user -> db_manager: validate_user()
+
+db_manager --> user: username
+user --> controller: username
+controller --> route: User Session
+route --> FlaskApp: User Allowed
+
+FlaskApp --> FrontEnd: Display Dashboard
+FrontEnd --> User: Dashboard
+
+
+User -> FrontEnd: Sends Request
+FrontEnd -> FlaskApp
+
+FlaskApp -> route: Sends Request
+route -> controller: process_request(request)
+
+controller -> db_manager: get_collection(collection_name)
+
+db_manager -> insurances_collection: retrieve_data
+db_manager -> actions_collection: retrieve_data
+db_manager -> sentences_collection: retrieve_data
+
+insurances_collection --> db_manager: return_data()
+actions_collection --> db_manager: return_data()
+sentences_collection --> db_manager: return_data()
+
+db_manager --> controller: return_data
+controller --> route: send_response(response)
+route --> FlaskApp: 
+FlaskApp --> FrontEnd
+FrontEnd --> User: send_response(response)
+
+@enduml
